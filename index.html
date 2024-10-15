@@ -54,7 +54,7 @@
       border: 1px solid rgba(255, 255, 255, 0.25);
       min-width: 320px;
       max-width: 400px;
-      height: 400px;
+      min-height: 600px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -66,7 +66,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 200px;
+      height: 250px;
       text-align: center;
       overflow-wrap: break-word;
       overflow: hidden;
@@ -79,6 +79,14 @@
       padding: 0 1rem;
       word-wrap: break-word;
       overflow: hidden;
+    }
+
+    /* Adjust author position */
+    #author {
+      font-size: 0.9rem;
+      color: #888;
+      text-align: right;
+      margin-top: 20px; /* Add margin to create space between quote and author */
     }
 
     /* Light and soft button style */
@@ -134,14 +142,6 @@
     body, select, button, h1, blockquote, p {
       font-family: 'Poppins', sans-serif;
       color: #555;
-    }
-
-    /* Author styling */
-    #author {
-      font-size: 0.9rem;
-      color: #888;
-      text-align: right;
-      margin-top: 0.5rem;
     }
   </style>
 </head>
@@ -203,7 +203,6 @@
     const authorText = document.getElementById("author");
     const newQuoteBtn = document.getElementById("new-quote-btn");
     const categorySelect = document.getElementById("category");
-    const quoteContainer = document.getElementById("quote-container");
     const loadingSpinner = document.getElementById("loading-spinner");
 
     const gradients = {
@@ -257,19 +256,25 @@
       showLoading();
 
       try {
-        const response = await fetch(`https://api.api-ninjas.com/v1/quotes?category=${category}`, {
-          headers: { 'X-Api-Key': 'S1HtIpV/ueZSuJrcE4ZfMA==Sp8KNVy9lkql2VMd' }
-        });
-        const data = await response.json();
+        let data;
+        let quote = "";
+        let author = "";
 
-        if (data.length > 0) {
-          // Update quote and author
-          quoteText.textContent = `"${data[0].quote}"`;
-          authorText.textContent = `- ${data[0].author}`;
-        } else {
-          quoteText.textContent = "No quotes available for this category.";
-          authorText.textContent = "";
-        }
+        // Keep fetching quotes until we find one with fewer than 150 characters
+        do {
+          const response = await fetch(`https://api.api-ninjas.com/v1/quotes?category=${category}`, {
+            headers: { 'X-Api-Key': 'S1HtIpV/ueZSuJrcE4ZfMA==Sp8KNVy9lkql2VMd' }
+          });
+          data = await response.json();
+          if (data.length > 0) {
+            quote = data[0].quote;
+            author = data[0].author;
+          }
+        } while (quote.length > 150);
+
+        // Update quote and author
+        quoteText.textContent = `"${quote}"`;
+        authorText.textContent = `- ${author}`;
 
         updateBackground(category);
       } catch (error) {
