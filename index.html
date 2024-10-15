@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elegant Random Quote Generator</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Smooth transitions for background changes */
+    body {
+      transition: background 0.8s ease-in-out;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Animated gradient background */
+    @keyframes flowing-gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .animated-gradient {
+      background-size: 200% 200%;
+      animation: flowing-gradient 10s ease infinite;
+    }
+
+    /* Fade-in effect for the card */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.8s forwards ease-out;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Light and soft glass effect for quote card */
+    #quote-card {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 30px;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      min-width: 320px;
+      max-width: 400px;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Quote container with consistent height and dynamic font scaling */
+    #quote-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      text-align: center;
+      overflow-wrap: break-word;
+      overflow: hidden;
+    }
+
+    blockquote {
+      font-size: 1.5rem;
+      line-height: 1.4;
+      font-style: italic;
+      padding: 0 1rem;
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+
+    /* Light and soft button style */
+    #new-quote-btn {
+      background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%);
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Button hover state */
+    #new-quote-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Spinner for loading state */
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.2);
+      border-left-color: #ffafbd;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Modern dropdown styling */
+    select {
+      background-color: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      border: none;
+      padding: 0.5rem;
+      border-radius: 15px;
+      color: #555;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    /* Smooth font and modern look */
+    body, select, button, h1, blockquote, p {
+      font-family: 'Poppins', sans-serif;
+      color: #555;
+    }
+
+    /* Author styling */
+    #author {
+      font-size: 0.9rem;
+      color: #888;
+      text-align: right;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-200 to-purple-300 text-gray-700 animated-gradient">
+
+  <!-- Quote card with a light mirror aesthetic -->
+  <div id="quote-card" class="fade-in">
+    <div class="mb-4">
+      <select id="category" class="w-full">
+        <option value="inspirational">Inspirational</option>
+        <option value="life">Life</option>
+        <option value="success">Success</option>
+        <option value="humor">Humor</option>
+        <option value="art">Art</option>
+        <option value="beauty">Beauty</option>
+        <option value="change">Change</option>
+        <option value="courage">Courage</option>
+        <option value="dreams">Dreams</option>
+        <option value="education">Education</option>
+        <option value="experience">Experience</option>
+        <option value="failure">Failure</option>
+        <option value="family">Family</option>
+        <option value="fear">Fear</option>
+        <option value="fitness">Fitness</option>
+        <option value="food">Food</option>
+        <option value="future">Future</option>
+        <option value="god">God</option>
+        <option value="happiness">Happiness</option>
+        <option value="health">Health</option>
+        <option value="hope">Hope</option>
+        <option value="money">Money</option>
+        <option value="imagination">Imagination</option>
+        <option value="knowledge">Knowledge</option>
+        <option value="leadership">Leadership</option>
+        <option value="learning">Learning</option>
+        <option value="love">Love</option>
+        <option value="marriage">Marriage</option>
+        <option value="friendship">Friendship</option>
+      </select>
+    </div>
+
+    <!-- Quote content -->
+    <div id="quote-container">
+      <div id="loading-spinner" class="hidden">
+        <div class="spinner"></div>
+      </div>
+      <blockquote id="quote">"Loading..."</blockquote>
+      <p id="author">- Author</p>
+    </div>
+
+    <!-- Fetch new quote button -->
+    <div class="flex justify-center">
+      <button id="new-quote-btn">Get New Quote</button>
+    </div>
+  </div>
+
+  <script>
+    const quoteText = document.getElementById("quote");
+    const authorText = document.getElementById("author");
+    const newQuoteBtn = document.getElementById("new-quote-btn");
+    const categorySelect = document.getElementById("category");
+    const quoteContainer = document.getElementById("quote-container");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    const gradients = {
+      inspirational: "from-pink-200 to-purple-300",
+      life: "from-blue-200 to-teal-300",
+      success: "from-yellow-200 to-orange-300",
+      humor: "from-green-200 to-yellow-300",
+      art: "from-indigo-200 to-blue-500",
+      beauty: "from-pink-300 to-red-400",
+      change: "from-yellow-300 to-orange-500",
+      courage: "from-red-200 to-yellow-400",
+      dreams: "from-blue-300 to-indigo-500",
+      education: "from-teal-300 to-green-400",
+      experience: "from-purple-300 to-indigo-400",
+      failure: "from-gray-400 to-red-500",
+      family: "from-teal-400 to-green-300",
+      fear: "from-red-300 to-black",
+      fitness: "from-green-300 to-blue-400",
+      food: "from-yellow-400 to-orange-300",
+      future: "from-blue-500 to-purple-400",
+      god: "from-yellow-400 to-red-500",
+      happiness: "from-yellow-300 to-green-400",
+      health: "from-green-300 to-teal-400",
+      hope: "from-indigo-300 to-purple-400",
+      money: "from-green-400 to-yellow-500",
+      imagination: "from-pink-400 to-purple-600",
+      knowledge: "from-blue-300 to-green-500",
+      leadership: "from-indigo-300 to-red-400",
+      learning: "from-blue-400 to-teal-500",
+      love: "from-pink-400 to-red-400",
+      marriage: "from-purple-400 to-red-400",
+      friendship: "from-orange-300 to-yellow-500",
+    };
+
+    // Show loading spinner
+    function showLoading() {
+      loadingSpinner.classList.remove("hidden");
+      quoteText.classList.add("hidden");
+      authorText.classList.add("hidden");
+    }
+
+    // Hide loading spinner
+    function hideLoading() {
+      loadingSpinner.classList.add("hidden");
+      quoteText.classList.remove("hidden");
+      authorText.classList.remove("hidden");
+    }
+
+    // Fetch quote from API Ninjas
+    async function getQuote(category) {
+      showLoading();
+
+      try {
+        const response = await fetch(`https://api.api-ninjas.com/v1/quotes?category=${category}`, {
+          headers: { 'X-Api-Key': 'S1HtIpV/ueZSuJrcE4ZfMA==Sp8KNVy9lkql2VMd' }
+        });
+        const data = await response.json();
+
+        if (data.length > 0) {
+          // Update quote and author
+          quoteText.textContent = `"${data[0].quote}"`;
+          authorText.textContent = `- ${data[0].author}`;
+        } else {
+          quoteText.textContent = "No quotes available for this category.";
+          authorText.textContent = "";
+        }
+
+        updateBackground(category);
+      } catch (error) {
+        console.error("Error fetching quote:", error);
+        quoteText.textContent = "Oops! Something went wrong...";
+        authorText.textContent = "";
+      }
+
+      hideLoading();
+    }
+
+    // Update background based on category
+    function updateBackground(category) {
+      const selectedGradient = gradients[category];
+      document.body.className = `min-h-screen flex items-center justify-center bg-gradient-to-r ${selectedGradient} text-gray-700 animated-gradient`;
+    }
+
+    // Initial quote load
+    getQuote(categorySelect.value);
+
+    // Event listener for new quote button
+    newQuoteBtn.addEventListener("click", () => {
+      getQuote(categorySelect.value);
+    });
+
+    // Event listener for category change
+    categorySelect.addEventListener("change", () => {
+      getQuote(categorySelect.value);
+    });
+  </script>
+</body>
+</html>
